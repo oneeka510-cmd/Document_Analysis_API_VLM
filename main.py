@@ -8,10 +8,10 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from gemini_matcher import analyze_document_with_gpt, is_configured
+from matcher import analyze_document_with_gpt, is_configured
 
 
-CONDITION_PROMPT_EXAMPLE = """Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note; (2) viscosity is present; and (3) a date is present. Return true only if every condition is clearly visible in the document. Return false if any condition is missing, unreadable, or cannot be verified. Do not infer information that is not visible."""
+CONDITION_PROMPT_EXAMPLE = """Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note [look for words like bunker analysis, bunker fuel, and use your own reasoning - not only these exact words]; (2) viscosity is present and around 210 [+-10 is okay]; and (3) a date is present [+- 10 hrs is allowed]. Return true only if every condition is clearly visible in the document. Return false if any condition is missing, unreadable, or cannot be verified. Do not infer information that is not visible."""
 
 
 app = FastAPI(
@@ -86,6 +86,10 @@ def analyze_document(request: AnalyzeDocumentRequest) -> AnalyzeDocumentResponse
         path = _records_path(request.url)
         verdict = analyze_document_with_gpt(request.url, request.prompt)
         return AnalyzeDocumentResponse(path=path, verdict=verdict)
+    except HTTPException:
+        # Already the right status code/message (e.g. 422 from _records_path) -
+        # re-raise as-is instead of letting it fall into the generic 500 below.
+        raise
     except RuntimeError as error:
         raise HTTPException(status_code=500, detail=str(error)) from error
     except Exception as error:
