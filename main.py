@@ -11,7 +11,7 @@ load_dotenv()
 from matcher import analyze_document_with_gpt, is_configured
 
 
-CONDITION_PROMPT_EXAMPLE = """Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note [look for words like bunker analysis, bunker fuel, and use your own reasoning - not only these exact words]; (2) viscosity is present and around 210 [+-10 is okay]; and (3) a date is present [+- 10 hrs is allowed]. Return true only if every condition is clearly visible in the document. Return false if any condition is missing, unreadable, or cannot be verified. Do not infer information that is not visible."""
+CONDITION_PROMPT_EXAMPLE = """Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note [look for words like bunker analysis, bunker fuel, and use your own reasoning - not only these exact words]; (2) viscosity is present and around 49.26 [+-10% after decimal point due to rounding off is okay]; (3) date of commencement/starting is 29 Nov 2020 [+-24 hours is okay] (4) the fuel type is VLSFO [There can be multiple fuel data so only verify all the fuel parameters against this specified fuel]. Return true only if every condition is clearly visible in the document. Return false if any condition is missing, unreadable, or cannot be verified. Do not infer information that is not visible."""
 
 
 app = FastAPI(
