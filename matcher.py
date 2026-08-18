@@ -86,6 +86,13 @@ def analyze_document_with_gpt(document_url: str, prompt: str) -> bool:
                     "role": "developer",
                     "content": (
                         "Evaluate the attached document against the user's prompt. "
+                        "Some conditions in the prompt include extra guidance in "
+                        "square brackets, like '(2) viscosity is present and around "
+                        "210 [+-10 is okay]'. Text inside [] is NOT a separate "
+                        "condition to check - it clarifies how to check the "
+                        "condition right before it (e.g. an acceptable tolerance, "
+                        "or alternate wording/phrases to look for). Apply that "
+                        "guidance when judging whether the condition is satisfied. "
                         "Set verdict to true only when the requested condition is "
                         "visibly satisfied or the requested verification passes; "
                         "otherwise set it to false."
