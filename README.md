@@ -1,10 +1,25 @@
 # Document & Image Analysis API
 
-A FastAPI service that checks whether a publicly hosted document or image satisfies a set of caller-defined conditions, using a vision-capable GPT model for structured, prompt-based verification.
+A drop-in reasoning layer for verifying documents. Send a public document/image URL plus a plain-English prompt describing what to check, and get back a strict `true`/`false` verdict — no fixed schema or document type required, so any project needing human-style judgment on a document can call it as-is.
 
 ## Why
 
-Plain OCR reads characters, not layout — scanned tables, forms, and mixed-content documents (like bunker delivery notes) often confuse it. This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions.
+Plain OCR reads characters, not layout — scanned tables, forms, and mixed-content documents often confuse it, and rule-based checks can't handle "does this look right" judgment calls. This service sends the document directly to a VLM, which reads it the way a human reviewer would and reasons about whether the caller's conditions are actually met, rather than pattern-matching on exact text.
+
+Because the conditions are just a prompt (not hardcoded fields), the same endpoint works for one document type today and a completely different one tomorrow — swap the prompt, not the code.
+
+## Use cases
+
+Any workflow that currently relies on a person eyeballing a document can point at this endpoint instead:
+
+- Verifying uploaded documents meet compliance/format requirements before they're accepted
+- Checking that a specific value, field, or clause is present (and within tolerance) in a scanned form
+- Gatekeeping automated pipelines — only proceed if the document passes a human-style check
+- Flagging documents that need manual review instead of silently failing
+
+Since the check is defined entirely by the prompt in the request body, it doesn't need to know about your document type ahead of time — no retraining, no per-document-type code path.
+
+This was built for maritime documents (bunker delivery notes, receipts, certificates), but nothing in the code is maritime-specific — swap the example prompt and you have the same reasoning layer for invoices, contracts, ID verification, or any other document-checking use case.
 
 ## How it works
 
