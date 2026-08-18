@@ -19,7 +19,14 @@ Any workflow that currently relies on a person eyeballing a document can point a
 
 Since the check is defined entirely by the prompt in the request body, it doesn't need to know about your document type ahead of time — no retraining, no per-document-type code path.
 
-This was built for maritime documents (bunker delivery notes, receipts, certificates), but nothing in the code is maritime-specific — swap the example prompt and you have the same reasoning layer for invoices, contracts, ID verification, or any other document-checking use case.
+This was built for maritime documents (bunker delivery notes, receipts, certificates), but nothing in the reasoning logic is maritime-specific. To adapt it to your own use case:
+
+- **`CONDITION_PROMPT_EXAMPLE` in `main.py`** — this is just the example shown in the Swagger docs. Replace it with conditions relevant to your documents.
+- **`_records_path()` in `main.py`** — this assumes every URL contains a `Records` path segment (specific to how documents are stored in this maritime setup) and returns a 422 if it's missing. If your URLs don't follow that structure, remove this function and the `path` field from `AnalyzeDocumentResponse`, and just return the URL itself (or drop the field entirely).
+- **`SUPPORTED_EXTENSIONS_FOR_OPENAI` in `matcher.py`** — already generic (PDFs, images, Word docs); trim or extend based on what file types you expect.
+- **`MODEL_NAME` in `matcher.py`** — swap if you want a different model.
+
+Everything else — the prompt/bracket handling, the strict-schema boolean verdict, the FastAPI route shape — works as-is regardless of domain.
 
 ## How it works
 
