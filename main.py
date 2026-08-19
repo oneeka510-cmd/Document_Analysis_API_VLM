@@ -11,7 +11,7 @@ load_dotenv()
 from matcher import analyze_document_with_gpt, is_configured
 
 
-CONDITION_PROMPT_EXAMPLE = """Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note [look for words like bunker analysis, bunker fuel, and use your own reasoning - not only these exact words]; (2) viscosity is present and around 49.26 [+-10% after decimal point due to rounding off is okay]; (3) date of commencement/starting is 29 Nov 2020 [+-24 hours is okay] (4) the fuel type is VLSFO [There can be multiple fuel data so only verify all the fuel parameters against this specified fuel]. Return true only if every condition is clearly visible in the document. Return false if any condition is missing, unreadable, or cannot be verified. Do not infer information that is not visible."""
+CONDITION_PROMPT_EXAMPLE = """Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note [look for words like bunker analysis, bunker fuel, and use your own reasoning - not only these exact words]; (2) date of commencement/starting is 29 Nov 2020 [+-24 hours is okay][date can be written in different languages such as Mei for May so check in different languages] (3) The quantity/BDN figure is 35 [only slight rounding off is acceptable]"""
 
 
 app = FastAPI(
@@ -51,6 +51,10 @@ class AnalyzeDocumentResponse(BaseModel):
             "passes; otherwise false."
         )
     )
+    unmatched: str = Field(
+        default="",
+        description="Reasons for conditions that were not matched, separated by ';'. Empty string when verdict is true.",
+    )
 
 
 def _records_path(url: str) -> str:
@@ -84,8 +88,12 @@ def analyze_document(request: AnalyzeDocumentRequest) -> AnalyzeDocumentResponse
 
     try:
         path = _records_path(request.url)
-        verdict = analyze_document_with_gpt(request.url, request.prompt)
-        return AnalyzeDocumentResponse(path=path, verdict=verdict)
+        verdict, unmatched_reasons = analyze_document_with_gpt(request.url, request.prompt)
+        return AnalyzeDocumentResponse(
+            path=path,
+            verdict=verdict,
+            unmatched="; ".join(unmatched_reasons),
+        )
     except HTTPException:
         # Already the right status code/message (e.g. 422 from _records_path) -
         # re-raise as-is instead of letting it fall into the generic 500 below.
