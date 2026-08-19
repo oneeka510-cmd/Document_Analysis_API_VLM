@@ -4,12 +4,12 @@ A FastAPI service that checks whether a publicly hosted document or image satisf
 
 ## Why
 
-Plain OCR reads characters, not layout - scanned tables, forms, and mixed-content documents (like bunker delivery notes) often confuse it. This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions - along with the specific reasons behind any failure.
+Plain OCR reads characters, not layout — scanned tables, forms, and mixed-content documents (like bunker delivery notes) often confuse it. This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions — along with the specific reasons behind any failure.
 
 ## How it works
 
 1. The caller sends a public document/image URL and a plain-English prompt describing the conditions to check.
-2. The prompt can include **bracketed guidance** next to any condition - e.g. `viscosity is present and around 210 [+-10 is okay]` - to give the model tolerances or alternate phrasing to look for, without turning it into a separate condition.
+2. The prompt can include **bracketed guidance** next to any condition — e.g. `viscosity is present and around 210 [+-10 is okay]` — to give the model tolerances or alternate phrasing to look for, without turning it into a separate condition.
 3. The model's response is constrained by a strict JSON schema (`{"verdict": bool, "unmatched": [str]}`), so the API can never return anything other than a genuine boolean plus a list of reasons for any condition that failed.
 4. If any condition isn't satisfied, the model explains why in plain English (e.g. `"Date not found in document, expected 29 Nov 2020"`). The API joins these into a single `unmatched` string, separated by `;` when more than one condition failed.
 
@@ -41,6 +41,16 @@ POST /analyze-document
   "unmatched": "Date not found in document, expected within 10 hours of the target date; Viscosity found is 195, expected around 210"
 }
 ```
+
+## Why use this API instead of calling OpenAI directly?
+
+This API doesn't add new capability beyond what a raw OpenAI call could do — the value is convenience and consistency for anyone integrating document checks into their own project:
+
+- **No schema design required.** Getting a VLM to reliably return a clean, typed `{"verdict": bool, "unmatched": [...]}` — not prose, not inconsistent formatting — already took real trial and error (structured outputs, strict schema, a developer prompt explaining the bracket convention). Callers just send a URL and prompt.
+- **Consistent, predictable errors.** A caller gets a clean `422` for a bad URL or `500` with a clear message, instead of a raw OpenAI exception they'd have to interpret themselves.
+- **Centralized behavior.** Swapping models, adjusting the prompt, or fixing a bug benefits every caller instantly, without them touching their own code.
+
+This mainly pays off when **multiple callers or services** need the same document-verification behavior — for a single one-off use case with full control over the code, calling OpenAI directly is simpler.
 
 ## Stack
 
@@ -85,9 +95,9 @@ matcher.py  # OpenAI call, MIME detection, verdict + unmatched-reasons parsing
 
 ## Error handling
 
-- **422** - the supplied URL doesn't contain the expected `Records` path segment
-- **500** - misconfiguration (missing API key) or a failure calling OpenAI
+- **422** — the supplied URL doesn't contain the expected `Records` path segment
+- **500** — misconfiguration (missing API key) or a failure calling OpenAI
 
 ## Limitations
 
-- Only works with **publicly accessible** URLs - the API references the URL directly rather than downloading the file.
+- Only works with **publicly accessible** URLs — the API references the URL directly rather than downloading the file.
