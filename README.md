@@ -4,7 +4,7 @@ A FastAPI service that checks whether a publicly hosted document or image satisf
 
 ## Why
 
-Plain OCR reads characters, not layout - scanned tables, forms, and mixed-content documents (like bunker delivery notes) often confuse it. This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions — along with the specific reasons behind any failure.
+Plain OCR reads characters, not layout - scanned tables, forms, and mixed-content documents (like bunker delivery notes) often confuse it. This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions - along with the specific reasons behind any failure.
 
 ## How it works
 
