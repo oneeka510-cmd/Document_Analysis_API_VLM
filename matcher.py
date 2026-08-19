@@ -1,5 +1,5 @@
 """
-gemini_matcher.py
+matcher.py
 ------------------
 Analyzes a public image or document using a caller-supplied prompt and
 OpenAI's GPT model.
@@ -63,8 +63,14 @@ def _guess_mime_type(document_url: str) -> str:
     raise ValueError(f"Could not determine file type for URL: {document_url}")
 
 
-def analyze_document_with_gpt(document_url: str, prompt: str) -> bool:
-    """Evaluate a public image/document against a prompt and return its verdict."""
+def analyze_document_with_gpt(document_url: str, prompt: str) -> tuple[bool, list[str]]:
+    """
+    Evaluate a public image/document against a prompt.
+    Returns (verdict, unmatched_reasons) - unmatched_reasons is a list of
+    short strings, one per condition that was NOT satisfied, in the model's
+    own words (e.g. "Date not found in document"). Empty list when verdict
+    is true.
+    """
     if not is_configured():
         raise RuntimeError("OPENAI_API_KEY is not configured")
 
@@ -86,16 +92,20 @@ def analyze_document_with_gpt(document_url: str, prompt: str) -> bool:
                     "role": "developer",
                     "content": (
                         "Evaluate the attached document against the user's prompt. "
-                        "Some conditions in the prompt include extra guidance in "
-                        "square brackets, like '(2) viscosity is present and around "
-                        "210 [+-10 is okay]'. Text inside [] is NOT a separate "
-                        "condition to check - it clarifies how to check the "
-                        "condition right before it (e.g. an acceptable tolerance, "
-                        "or alternate wording/phrases to look for). Apply that "
-                        "guidance when judging whether the condition is satisfied. "
-                        "Set verdict to true only when the requested condition is "
-                        "visibly satisfied or the requested verification passes; "
-                        "otherwise set it to false."
+                        "The prompt lists numbered conditions; some include extra "
+                        "guidance in square brackets (e.g. '[+-10 is okay]') which "
+                        "clarifies tolerance or alternate wording for the condition "
+                        "right before it - it is not a separate condition. "
+                        "Check each numbered condition individually. For every "
+                        "condition that is NOT clearly satisfied (missing, "
+                        "unreadable, or doesn't match), add one short plain-English "
+                        "reason to the 'unmatched' list explaining specifically what "
+                        "was expected and what was actually found or missing (e.g. "
+                        "'Date not found in document', 'Fuel type found is MGO, "
+                        "expected IFO'). If a condition IS satisfied, do not "
+                        "mention it in 'unmatched'. Set verdict to true only when "
+                        "every condition is satisfied (i.e. 'unmatched' is empty); "
+                        "otherwise set verdict to false."
                     ),
                 },
                 {
@@ -113,14 +123,22 @@ def analyze_document_with_gpt(document_url: str, prompt: str) -> bool:
                     "strict": True,
                     "schema": {
                         "type": "object",
-                        "properties": {"verdict": {"type": "boolean"}},
-                        "required": ["verdict"],
+                        "properties": {
+                            "verdict": {"type": "boolean"},
+                            "unmatched": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "One short reason per condition that was not satisfied. Empty when verdict is true.",
+                            },
+                        },
+                        "required": ["verdict", "unmatched"],
                         "additionalProperties": False,
                     },
                 }
             },
         )
-        return bool(json.loads(response.output_text)["verdict"])
+        parsed = json.loads(response.output_text)
+        return bool(parsed["verdict"]), list(parsed.get("unmatched", []))
 
     except Exception as error:
         raise RuntimeError(f"OpenAI check failed: {error}") from error
