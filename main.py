@@ -29,7 +29,7 @@ class AnalyzeDocumentRequest(BaseModel):
         ...,
         description="Publicly accessible URL of the image or document to analyze.",
         examples=[
-            "https://nauserver.com/Records/BunkerReceipt/BunkerReceipt-843-0502015358.pdf"
+            "https://example.com/Records/BunkerReceipt/BunkerReceipt-84pdf"
         ],
     )
     prompt: str = Field(
