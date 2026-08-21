@@ -4,7 +4,14 @@ A FastAPI service that checks whether a publicly hosted document or image satisf
 
 ## Why
 
-Plain OCR reads characters, not layout — scanned tables, forms, and mixed-content documents (like bunker delivery notes) often confuse it. This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions — along with the specific reasons behind any failure.
+If users are uploading documents and typing in values against them, you can't fully trust what they entered — and once you're dealing with thousands of records, checking each document manually against its entered values just isn't feasible.
+
+I built this to solve exactly that. Point it at the uploaded document and describe what values it should contain, and you get back a consistent, structured verdict — true or false, plus exactly what didn't match — instead of manually re-verifying record by record.
+
+One place this holds up well: bunker delivery records, where an invoice is uploaded alongside entered values like fuel viscosity and BDN quantity across thousands of rows. A mismatch here isn't cosmetic — it can mean thousands of dollars in cost, and catching it after the fact means manually checking every document against every entered value. Wire this API into the document preview instead, and each row gets a clear pass or fail without the manual sweep.
+
+Try it with your own documents and conditions using the example prompts below, or see the demo frontend for a live walkthrough.
+This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions — along with the specific reasons behind any failure.
 
 ## How it works
 
@@ -43,8 +50,7 @@ POST /analyze-document
 ```
 
 ## Why use this API instead of calling OpenAI directly?
-
-This API doesn't add new capability beyond what a raw OpenAI call could do — the value is convenience and consistency for anyone integrating document checks into their own project:
+The value is convenience and consistency for anyone integrating document checks into their own project.
 
 - **No schema design required.** Getting a VLM to reliably return a clean, typed `{"verdict": bool, "unmatched": [...]}` — not prose, not inconsistent formatting — already took real trial and error (structured outputs, strict schema, a developer prompt explaining the bracket convention). Callers just send a URL and prompt.
 - **Consistent, predictable errors.** A caller gets a clean `422` for a bad URL or `500` with a clear message, instead of a raw OpenAI exception they'd have to interpret themselves.
