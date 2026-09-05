@@ -23,7 +23,7 @@ Custom Business Documents      define your own conditions and expected values
 Core idea: Apply the same verification rules across thousands of documents while the expected values change for each record.
 
 <p align="center">
-  <img src="DOC_VLM_DEMO_IMAGE.PNG" alt="Document Verification Demo" width="1000">
+  <img src="DOC_VLM_DEMO_IMAGE.jpg" alt="Document Verification Demo" width="1000">
 </p>
 
 ## Why
