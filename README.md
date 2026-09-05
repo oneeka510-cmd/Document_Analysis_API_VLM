@@ -3,7 +3,7 @@
 A FastAPI service that checks whether a publicly hosted document or image satisfies a set of caller-defined conditions, using a vision-capable GPT model for structured, prompt-based verification.
 
 ## Use Cases
-- This API is intended to act as a verification layer between document-heavy workflows and the systems that store their structured data.
+This API is intended to act as a verification layer between document-heavy workflows and the systems that store their structured data.
 
 Instead of:
 ```Upload → Store → Trust```
