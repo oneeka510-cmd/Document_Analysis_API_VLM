@@ -22,6 +22,10 @@ Custom Business Documents      define your own conditions and expected values
 
 Core idea: Apply the same verification rules across thousands of documents while the expected values change for each record.
 
+<p align="center">
+  <img src="DOC_VLM_DEMO_IMAGE.PNG" alt="Document Verification Demo" width="1000">
+</p>
+
 ## Why
 
 If users are uploading documents and typing in values against them, you can't fully trust what they entered - and once you're dealing with thousands of records, checking each document manually against its entered values just isn't feasible.
