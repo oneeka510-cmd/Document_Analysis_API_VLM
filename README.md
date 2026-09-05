@@ -46,7 +46,7 @@ This service sends the document directly to a VLM, which understands structure t
 ```json
 POST /analyze-document
 {
-  "url": "https://example.com/Records/BunkerReceipt/BunkerReceipt-843.pdf",
+  "url": "https://example.com/Records/BReceipt/Receipt-843.pdf",
   "prompt": "Check whether this document meets ALL of these conditions: (1) it is a bunker delivery note [look for words like bunker analysis, bunker fuel, and use your own reasoning - not only these exact words]; (2) viscosity is present and around 210 [+-10 is okay]; and (3) a date is present [+- 10 hrs is allowed]. Return true only if every condition is clearly visible in the document."
 }
 ```
