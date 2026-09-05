@@ -10,6 +10,17 @@ Instead of:
 you can build:
 ```Upload → Verify → Store```
 
+Invoices — verify vendor, amount, tax, date, quantity
+Purchase Orders — verify PO number, products, prices, quantities
+Receipts & Expenses — verify claimed values against receipts
+Certificates & Licenses — verify identity, validity, expiry dates
+Delivery & Shipping Documents — verify shipment details, quantities, dates
+Compliance & Audit Documents — verify required information and conditions
+Contracts & Legal Documents — verify parties, dates, amounts, clauses
+Custom Business Documents — define your own conditions and expected values
+
+Core idea: Apply the same verification rules across thousands of documents while the expected values change for each record.
+
 ## Why
 
 If users are uploading documents and typing in values against them, you can't fully trust what they entered - and once you're dealing with thousands of records, checking each document manually against its entered values just isn't feasible.
