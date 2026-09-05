@@ -28,7 +28,7 @@ If users are uploading documents and typing in values against them, you can't fu
 
 I built this to solve exactly that. Point it at the uploaded document and describe what values it should contain, and you get back a consistent, structured verdict - true or false, plus exactly what didn't match - instead of manually re-verifying record by record.
 
-One place this holds up well: bunker delivery records, where an invoice is uploaded alongside entered values like fuel viscosity and BDN quantity across thousands of rows. A mismatch here isn't cosmetic - it can mean thousands of dollars in cost, and catching it after the fact means manually checking every document against every entered value. Wire this API into the document preview instead, and each row gets a clear pass or fail without the manual sweep.
+One place this holds up well: invoice verification, where an invoice is uploaded alongside entered values like vendor name, invoice amount, quantity, and date across thousands of records. A mismatch here isn't cosmetic - it can lead to incorrect payments, accounting errors, or financial loss. Catching these discrepancies after the fact means manually checking every invoice against its entered values. Wire this API into the document workflow instead, and each record gets a clear pass or fail without the manual sweep.
 
 Try it with your own documents and conditions using the example prompts below, or see the demo frontend for a live walkthrough.
 This service sends the document directly to a VLM, which understands structure the way a human reviewer would, and returns a strict `true`/`false` verdict for the given conditions - along with the specific reasons behind any failure.
@@ -54,7 +54,7 @@ POST /analyze-document
 **All conditions matched:**
 ```json
 {
-  "path": "Records/BunkerReceipt/BunkerReceipt-843.pdf",
+  "path": "Records/BReceipt/Receipt-843.pdf",
   "verdict": true,
   "unmatched": ""
 }
@@ -63,7 +63,7 @@ POST /analyze-document
 **One or more conditions failed:**
 ```json
 {
-  "path": "Records/BunkerReceipt/BunkerReceipt-843.pdf",
+  "path": "Records/BReceipt/Receipt-843.pdf",
   "verdict": false,
   "unmatched": "Date not found in document, expected within 10 hours of the target date; Viscosity found is 195, expected around 210"
 }
