@@ -2,6 +2,14 @@
 
 A FastAPI service that checks whether a publicly hosted document or image satisfies a set of caller-defined conditions, using a vision-capable GPT model for structured, prompt-based verification.
 
+## Use Cases
+- This API is intended to act as a verification layer between document-heavy workflows and the systems that store their structured data.
+
+Instead of:
+```Upload → Store → Trust```
+you can build:
+```Upload → Verify → Store```
+
 ## Why
 
 If users are uploading documents and typing in values against them, you can't fully trust what they entered - and once you're dealing with thousands of records, checking each document manually against its entered values just isn't feasible.
@@ -104,13 +112,6 @@ matcher.py  # OpenAI call, MIME detection, verdict + unmatched-reasons parsing
 - **422** - the supplied URL doesn't contain the expected `Records` path segment
 - **500** - misconfiguration (missing API key) or a failure calling OpenAI
 
-## Use Cases
-- This API is intended to act as a verification layer between document-heavy workflows and the systems that store their structured data.
-
-Instead of:
-```Upload → Store → Trust```
-you can build:
-```Upload → Verify → Store```
 
 ## Limitations
 
